@@ -456,11 +456,11 @@ environment"></textarea>
 
       if (typedAnswer === correctAnswer) {
         score += 1;
-        feedback.textContent = "Correct! ✅";
+        feedback.textContent = "නිවැරදියි! ✅";
         feedback.className = "correct";
       } else {
-        feedback.textContent = `Not quite — the answer was “${getCurrentWord()}”.`;
-        feedback.className = "wrong";
+       feedback.textContent = `වැරදියි — නිවැරදි පිළිතුර “${getCurrentWord()}” යි.`;
+       feedback.className = "wrong";  
       }
 
       scoreDisplay.textContent = `Score: ${score}`;
