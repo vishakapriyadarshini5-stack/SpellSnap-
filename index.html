@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpellSnap</title>
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: rgba(22, 31, 58, 0.80);
+      --line: rgba(255, 255, 255, 0.13);
+      --text: #f8fafc;
+      --muted: #aab4ca;
+      --accent: #8b5cf6;
+      --accent-two: #38bdf8;
+      --good: #34d399;
+      --bad: #fb7185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px 16px;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.38), transparent 29rem),
+        radial-gradient(circle at 90% 85%, rgba(56, 189, 248, 0.26), transparent 28rem),
+        var(--bg);
+    }
+
+    .app {
+      width: min(720px, 100%);
+      padding: clamp(20px, 5vw, 42px);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--card);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #ddd6fe;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      margin: 16px 0 8px;
+      font-size: clamp(34px, 8vw, 54px);
+      letter-spacing: -2px;
+    }
+
+    .intro,
+    .instruction {
+      margin: 0 0 28px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    label {
+      display: block;
+      margin: 22px 0 8px;
+      font-weight: 750;
+    }
+
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid var(--line);
+      outline: none;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    input[type="text"] {
+      margin-top: 16px;
+      font-size: 19px;
+    }
+
+    textarea:focus,
+    input[type="text"]:focus {
+      border-color: var(--accent-two);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .upload {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 112px;
+      padding: 16px;
+      border: 1.5px dashed rgba(196, 181, 253, 0.55);
+      border-radius: 18px;
+      background: rgba(139, 92, 246, 0.08);
+      color: #e9d5ff;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .upload:hover {
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    #preview {
+      display: none;
+      width: 100%;
+      max-height: 310px;
+      margin-top: 14px;
+      object-fit: contain;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+
+    .actions,
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .actions {
+      justify-content: flex-end;
+    }
+
+    button {
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-two));
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hear {
+      width: 100%;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(139, 92, 246, 0.16);
+      font-size: 17px;
+    }
+
+    .hear:hover {
+      background: rgba(139, 92, 246, 0.27);
+    }
+
+    .buttons button {
+      flex: 1;
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.10);
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    #feedback {
+      min-height: 30px;
+      margin: 20px 0 0;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .correct {
+      color: var(--good);
+    }
+
+    .wrong {
+      color: var(--bad);
+    }
+
+    .results-score {
+      margin: 28px 0;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.16);
+      text-align: center;
+      font-size: 19px;
+      color: var(--muted);
+    }
+
+    .results-score strong {
+      color: white;
+      font-size: 28px;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 12px;
+      }
+
+      .app {
+        min-height: calc(100vh - 24px);
+        border-radius: 22px;
+      }
+
+      .actions button {
+        width: 100%;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <!-- SETUP SCREEN -->
+    <section id="setupScreen">
+      <span class="badge">SPELLING PRACTICE</span>
+
+      <h1>SpellSnap</h1>
+      <p class="intro">
+        Add a spelling list by typing it, pasting it, or taking a photo.
+        Put one word or sentence on each line.
+      </p>
+
+      <label for="wordList">Your spelling list</label>
+      <textarea id="wordList" placeholder="beautiful
+separate
+necessary
+embarrass
+environment"></textarea>
+      <p class="hint">Each new line becomes one dictation question.</p>
+
+      <label for="photoInput">Photo of a spelling list</label>
+      <label class="upload" for="photoInput">
+        📷&nbsp; Take a photo or choose an image
+      </label>
+      <input id="photoInput" type="file" accept="image/*" capture="environment">
+      <img id="preview" alt="Preview of your selected spelling-list photo">
+
+      <div class="actions">
+        <button id="startButton">Start practice →</button>
+      </div>
+    </section>
+
+    <!-- PRACTICE SCREEN -->
+    <section id="practiceScreen" class="hidden">
+      <div class="top">
+        <span id="progress">Word 1 of 1</span>
+        <span id="score">Score: 0</span>
+      </div>
+
+      <h1>Listen and spell.</h1>
+      <p class="instruction">
+        Press “Hear word,” type exactly what you hear, then check your answer.
+      </p>
+
+      <button class="hear" id="hearButton">🔊 Hear word</button>
+
+      <input
+        id="answer"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="Type the spelling here"
+      >
+
+      <div class="buttons">
+        <button id="checkButton">Check answer</button>
+        <button class="secondary" id="nextButton" disabled>Next word →</button>
+      </div>
+
+      <p id="feedback" aria-live="polite"></p>
+    </section>
+
+    <!-- RESULTS SCREEN -->
+    <section id="resultsScreen" class="hidden">
+      <span class="badge">PRACTICE COMPLETE</span>
+
+      <h1>Nice work.</h1>
+      <p class="intro">You finished the whole spelling list.</p>
+
+      <div class="results-score">
+        You got<br>
+        <strong id="finalScore">0 / 0</strong><br>
+        correct
+      </div>
+
+      <button id="againButton">Try another list</button>
+    </section>
+
+  </main>
+
+  <script>
+    const setupScreen = document.getElementById("setupScreen");
+    const practiceScreen = document.getElementById("practiceScreen");
+    const resultsScreen = document.getElementById("resultsScreen");
+
+    const wordList = document.getElementById("wordList");
+    const photoInput = document.getElementById("photoInput");
+    const preview = document.getElementById("preview");
+    const startButton = document.getElementById("startButton");
+
+    const progress = document.getElementById("progress");
+    const scoreDisplay = document.getElementById("score");
+    const hearButton = document.getElementById("hearButton");
+    const answer = document.getElementById("answer");
+    const checkButton = document.getElementById("checkButton");
+    const nextButton = document.getElementById("nextButton");
+    const feedback = document.getElementById("feedback");
+
+    const finalScore = document.getElementById("finalScore");
+    const againButton = document.getElementById("againButton");
+
+    let words = [];
+    let currentIndex = 0;
+    let score = 0;
+    let hasChecked = false;
+
+    photoInput.addEventListener("change", () => {
+      const photo = photoInput.files[0];
+
+      if (!photo) return;
+
+      preview.src = URL.createObjectURL(photo);
+      preview.style.display = "block";
+    });
+
+    function showScreen(screen) {
+      setupScreen.classList.add("hidden");
+      practiceScreen.classList.add("hidden");
+      resultsScreen.classList.add("hidden");
+      screen.classList.remove("hidden");
+    }
+
+    function getCurrentWord() {
+      return words[currentIndex];
+    }
+
+    function speakWord() {
+      if (!getCurrentWord()) return;
+
+      window.speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(getCurrentWord());
+      speech.lang = "en-GB";
+      speech.rate = 0.75;
+
+      window.speechSynthesis.speak(speech);
+    }
+
+    function updatePracticeScreen() {
+      progress.textContent = `Word ${currentIndex + 1} of ${words.length}`;
+      scoreDisplay.textContent = `Score: ${score}`;
+      answer.value = "";
+      feedback.textContent = "";
+      feedback.className = "";
+      checkButton.disabled = false;
+      nextButton.disabled = true;
+      hasChecked = false;
+      answer.focus();
+    }
+
+    startButton.addEventListener("click", () => {
+      words = wordList.value
+        .split("\n")
+        .map((word) => word.trim())
+        .filter(Boolean);
+
+      if (words.length === 0) {
+        alert("Type or paste at least one word first.");
+        wordList.focus();
+        return;
+      }
+
+      currentIndex = 0;
+      score = 0;
+      showScreen(practiceScreen);
+      updatePracticeScreen();
+      speakWord();
+    });
+
+    hearButton.addEventListener("click", speakWord);
+
+    checkButton.addEventListener("click", () => {
+      if (hasChecked) return;
+
+      const typedAnswer = answer.value.trim().toLowerCase();
+      const correctAnswer = getCurrentWord().trim().toLowerCase();
+
+      if (!typedAnswer) {
+        feedback.textContent = "Type an answer first.";
+        feedback.className = "wrong";
+        answer.focus();
+        return;
+      }
+
+      hasChecked = true;
+      checkButton.disabled = true;
+      nextButton.disabled = false;
+
+      if (typedAnswer === correctAnswer) {
+        score += 1;
+        feedback.textContent = "Correct! ✅";
+        feedback.className = "correct";
+      } else {
+        feedback.textContent = `Not quite — the answer was “${getCurrentWord()}”.`;
+        feedback.className = "wrong";
+      }
+
+      scoreDisplay.textContent = `Score: ${score}`;
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (!hasChecked) return;
+
+      currentIndex += 1;
+
+      if (currentIndex >= words.length) {
+        finalScore.textContent = `${score} / ${words.length}`;
+        showScreen(resultsScreen);
+        return;
+      }
+
+      updatePracticeScreen();
+      speakWord();
+    });
+
+    answer.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+
+      if (!hasChecked) {
+        checkButton.click();
+      } else {
+        nextButton.click();
+      }
+    });
+
+    againButton.addEventListener("click", () => {
+      window.speechSynthesis.cancel();
+      showScreen(setupScreen);
+      wordList.focus();
+    });
+  </script>
+</body>
+</html>
